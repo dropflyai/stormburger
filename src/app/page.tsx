@@ -5,6 +5,155 @@ import { Clock, MapPin, Phone, Star, ChefHat, Coffee, Zap, Flame } from 'lucide-
 import { useState, useEffect } from 'react'
 import AIOrderChat from '../components/AIOrderChat'
 
+// Featured Rolodex Component
+const FeaturedRolodex = ({ showChat, setShowChat }: { showChat: boolean; setShowChat: (show: boolean) => void }) => {
+  const [currentCard, setCurrentCard] = useState(0)
+  
+  const featuredItems = [
+    {
+      name: "⚡ Classic StormBurger",
+      description: "1/4 lb all-natural smashburger, cheese, lettuce, tomato, raw onions, pickles, storm sauce",
+      price: "$8.99",
+      image: "/images/storm-classic-burger.jpg",
+      category: "Signature Burger"
+    },
+    {
+      name: "🔥 Spicy Chicken Sandwich", 
+      description: "All-natural handbreaded fried chicken, pickles, spicy mayo, thunder sauce",
+      price: "$9.99",
+      image: "/images/spicy-chicken.jpg",
+      category: "Handbreaded Chicken"
+    },
+    {
+      name: "🍟 Storm Fries",
+      description: "Crispy golden french fries seasoned with our signature storm seasoning",
+      price: "$4.99",
+      image: "/images/storm-fries.jpg", 
+      category: "Fresh Sides"
+    },
+    {
+      name: "🧅 Thunder Onion Rings",
+      description: "Handcrafted in-house with fresh onions, crispy golden perfection",
+      price: "$5.99",
+      image: "/images/onion-rings.jpg",
+      category: "House Special"
+    },
+    {
+      name: "🥛 Lightning Milkshake",
+      description: "Thick and creamy vanilla milkshake topped with whipped cream",
+      price: "$4.99", 
+      image: "/images/milkshake.jpg",
+      category: "Sweet Treats"
+    },
+    {
+      name: "🍗 Chicken Strip Combo",
+      description: "Hand-breaded chicken tenders with your choice of sauce",
+      price: "$10.99",
+      image: "/images/chicken-strips.jpg",
+      category: "Crispy Strips"
+    }
+  ]
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentCard((prev) => (prev + 1) % featuredItems.length)
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const getCardTransform = (index) => {
+    const diff = index - currentCard
+    const totalCards = featuredItems.length
+    
+    // Normalize the difference to handle wrapping
+    let normalizedDiff = diff
+    if (diff > totalCards / 2) normalizedDiff = diff - totalCards
+    if (diff < -totalCards / 2) normalizedDiff = diff + totalCards
+    
+    const angle = normalizedDiff * 15 // Degrees between cards
+    const distance = Math.abs(normalizedDiff) * 40 // Distance from center
+    const scale = normalizedDiff === 0 ? 1 : 0.85 - Math.abs(normalizedDiff) * 0.1
+    const opacity = normalizedDiff === 0 ? 1 : Math.max(0.3, 1 - Math.abs(normalizedDiff) * 0.2)
+    const zIndex = 10 - Math.abs(normalizedDiff)
+    
+    return {
+      transform: `perspective(1000px) rotateY(${angle}deg) translateZ(${distance}px) scale(${scale})`,
+      opacity,
+      zIndex
+    }
+  }
+
+  return (
+    <div className="relative h-96 w-full flex items-center justify-center overflow-visible">
+      {/* Cards Container */}
+      <div className="relative w-80 h-80">
+        {featuredItems.map((item, index) => (
+          <motion.div
+            key={index}
+            className="absolute inset-0 cursor-pointer"
+            style={getCardTransform(index)}
+            onClick={() => setCurrentCard(index)}
+            whileHover={{ scale: index === currentCard ? 1.02 : 0.87 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+          >
+            <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl p-6 border-2 border-blue-100 hover:bg-white hover:shadow-3xl transition-all duration-300 h-full">
+              <div className="mb-4 relative overflow-hidden rounded-2xl">
+                <img 
+                  src={item.image} 
+                  alt={item.name} 
+                  className="w-full h-36 object-cover transform hover:scale-105 transition-transform duration-300" 
+                />
+                <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full font-medium">
+                  {item.category}
+                </div>
+              </div>
+              
+              <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1">{item.name}</h3>
+              <p className="text-gray-700 mb-3 text-sm line-clamp-2">{item.description}</p>
+              
+              <div className="flex justify-between items-center">
+                <span className="text-2xl font-bold text-blue-600">{item.price}</span>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setShowChat(true)
+                  }}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all shadow-lg text-sm font-semibold"
+                >
+                  Order Now
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Navigation Dots */}
+      <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-2">
+        {featuredItems.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentCard(index)}
+            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+              currentCard === index 
+                ? 'bg-blue-600 shadow-lg scale-125' 
+                : 'bg-blue-300 hover:bg-blue-400'
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* Award Badge */}
+      <div className="absolute -top-4 -right-4 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-full p-4 shadow-2xl transform rotate-12 border-2 border-white z-20">
+        <div className="text-center">
+          <div className="text-lg font-bold">Est. 2023</div>
+          <div className="text-xs">Fresh Daily</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
   const [showChat, setShowChat] = useState(false)
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -149,55 +298,14 @@ export default function Home() {
               </div>
             </motion.div>
 
+            {/* 3D Rolodex Featured Items */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative"
+              className="relative h-96 w-full"
             >
-              {/* Main Featured Item */}
-              <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl p-8 transform rotate-1 border-2 border-blue-100 hover:bg-white hover:shadow-3xl transition-all duration-300">
-                <div className="mb-4">
-                  <img src="/images/storm-classic-burger.jpg" alt="Classic StormBurger" className="w-full h-48 object-cover rounded-2xl mb-4" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">⚡ Classic StormBurger</h3>
-                <p className="text-gray-700 mb-4">1/4 lb all-natural smashburger, cheese, lettuce, tomato, raw onions, pickles, storm sauce</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-3xl font-bold text-blue-600">$8.99</span>
-                  <button 
-                    onClick={() => setShowChat(true)}
-                    className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all shadow-lg"
-                  >
-                    Order Now
-                  </button>
-                </div>
-              </div>
-              
-              {/* Secondary Featured Item */}
-              <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl p-8 transform -rotate-1 mt-6 border-2 border-blue-100 hover:bg-white hover:shadow-3xl transition-all duration-300">
-                <div className="mb-4">
-                  <img src="/images/spicy-chicken.jpg" alt="Spicy Chicken Sandwich" className="w-full h-48 object-cover rounded-2xl mb-4" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">🔥 Spicy Chicken Sandwich</h3>
-                <p className="text-gray-700 mb-4">All-natural handbreaded fried chicken, pickles, spicy mayo, thunder sauce</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-3xl font-bold text-blue-600">$9.99</span>
-                  <button 
-                    onClick={() => setShowChat(true)}
-                    className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all shadow-lg"
-                  >
-                    Order Now
-                  </button>
-                </div>
-              </div>
-
-              {/* Award Badge */}
-              <div className="absolute -top-4 -right-4 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-full p-4 shadow-2xl transform rotate-12 border-2 border-white">
-                <div className="text-center">
-                  <div className="text-lg font-bold">Est. 2023</div>
-                  <div className="text-xs">Fresh Daily</div>
-                </div>
-              </div>
+              <FeaturedRolodex showChat={showChat} setShowChat={setShowChat} />
             </motion.div>
           </div>
         </div>

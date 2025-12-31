@@ -39,3 +39,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# System - Never commit credentials
+.credentials/
+
+# ================================
+# PROJECT-TEMPLATE Security
+# ================================
+# Credentials - NEVER commit these
+credentials/.env
+credentials/.env.local
+credentials/services/*.env
+
+# Verification artifacts
+/tmp/verification_*
+
